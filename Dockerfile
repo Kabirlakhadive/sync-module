@@ -8,6 +8,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+# Remove lockfile to avoid Windows/Linux conflicts and force fresh install
+RUN rm -f package-lock.json yarn.lock pnpm-lock.yaml
 RUN npm install
 
 # Rebuild the source code only when needed

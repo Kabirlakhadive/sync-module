@@ -12,8 +12,8 @@ services:
       # Base64 encoded Basic Auth token
       - TRUENAS_API_TOKEN=dnZhZG1pbjp2dmFkbWluQDIwMjU=
       # IMPORTANT: Must match the URL you use to access the app in browser
-      - NEXTAUTH_URL=http://192.168.25.43:3003
-      - NEXT_PUBLIC_APP_URL=http://192.168.25.43:3003
+      - NEXTAUTH_URL=http://vvault-rnd.local:3003
+      - NEXT_PUBLIC_APP_URL=http://vvault-rnd.local:3003
     extra_hosts:
       - "truenas.portal:host-gateway"
     restart: unless-stopped
