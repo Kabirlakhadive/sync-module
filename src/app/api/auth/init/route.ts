@@ -1,0 +1,29 @@
+import { NextResponse } from "next/server";
+import { getAuthUrl } from "@/lib/google";
+import { cookies } from "next/headers";
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { clientId, clientSecret } = body;
+
+  if (!clientId || !clientSecret) {
+    return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
+  }
+
+  // Set cookies for the callback phase
+  const cookieStore = await cookies();
+  cookieStore.set("google_client_id", clientId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
+  cookieStore.set("google_client_secret", clientSecret, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
+
+  const url = getAuthUrl(clientId, clientSecret);
+
+  return NextResponse.json({ url });
+}
