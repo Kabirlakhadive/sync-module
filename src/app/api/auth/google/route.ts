@@ -32,7 +32,8 @@ export async function GET(request: Request) {
     const { tokens } = await oauth2Client.getToken(code);
 
     // Redirect to dashboard
-    const response = NextResponse.redirect(new URL("/dashboard", request.url));
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.url;
+    const response = NextResponse.redirect(new URL("/dashboard", baseUrl));
 
     // Store tokens in cookies
     if (tokens.access_token) {
