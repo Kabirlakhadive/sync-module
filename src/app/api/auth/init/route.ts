@@ -4,7 +4,13 @@ import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { clientId, clientSecret } = body;
+  let { clientId, clientSecret } = body;
+
+  // Fallback to env vars if provided (Server-Managed Mode)
+  if (!clientId || !clientSecret) {
+    clientId = process.env.GOOGLE_CLIENT_ID;
+    clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  }
 
   if (!clientId || !clientSecret) {
     return NextResponse.json({ error: "Missing credentials" }, { status: 400 });

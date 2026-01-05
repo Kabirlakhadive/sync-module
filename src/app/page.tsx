@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,10 +18,24 @@ export default function Home() {
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isServerConfigured, setIsServerConfigured] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    axios
+      .get("/api/config/status")
+      .then((res) => {
+        if (res.data.hasEnvCreds) {
+          setIsServerConfigured(true);
+        }
+      })
+      .catch((e) => console.error("Failed to check config status", e));
+  }, []);
+
   const handleLogin = async () => {
-    if (!clientId || !clientSecret) return;
+    // Validation only required if NOT server configured
+    if (!isServerConfigured && (!clientId || !clientSecret)) return;
+
     setLoading(true);
     try {
       const res = await axios.post("/api/auth/init", {
@@ -45,30 +59,46 @@ export default function Home() {
             <HardDrive className="w-10 h-10 text-primary" />
           </div>
           <CardTitle className="text-2xl">TrueNAS Drive Sync</CardTitle>
-          <CardDescription>Enter Google Client Credentials</CardDescription>
+          <CardDescription>
+            {isServerConfigured
+              ? "Credentials configured by Administrator"
+              : "Enter Google Client Credentials"}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Client ID</label>
-            <Input
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              placeholder="xxx.apps.googleusercontent.com"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Client Secret</label>
-            <Input
-              type="password"
-              value={clientSecret}
-              onChange={(e) => setClientSecret(e.target.value)}
-              placeholder="Client Secret"
-            />
-          </div>
+          {!isServerConfigured && (
+            <>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Client ID</label>
+                <Input
+                  value={clientId}
+                  onChange={(e) => setClientId(e.target.value)}
+                  placeholder="xxx.apps.googleusercontent.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Client Secret</label>
+                <Input
+                  type="password"
+                  value={clientSecret}
+                  onChange={(e) => setClientSecret(e.target.value)}
+                  placeholder="Client Secret"
+                />
+              </div>
+            </>
+          )}
+
+          {isServerConfigured && (
+            <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm text-center border border-green-200">
+              ✓ Server-Managed Mode Active
+            </div>
+          )}
 
           <Button
             onClick={handleLogin}
-            disabled={loading || !clientId || !clientSecret}
+            disabled={
+              loading || (!isServerConfigured && (!clientId || !clientSecret))
+            }
             size="lg"
             className="w-full font-semibold"
           >
