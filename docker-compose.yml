@@ -3,7 +3,6 @@ services:
   truenas-sync-poc:
     container_name: truenas-sync-poc
     build: .
-    image: truenas-sync-poc:latest
     ports:
       - "3003:3000"
     environment:
