@@ -20,12 +20,12 @@ export async function POST(req: Request) {
   const cookieStore = await cookies();
   cookieStore.set("google_client_id", clientId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // POC runs on HTTP
     path: "/",
   });
   cookieStore.set("google_client_secret", clientSecret, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // POC runs on HTTP
     path: "/",
   });
 

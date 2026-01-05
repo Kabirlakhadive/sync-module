@@ -11,8 +11,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "No code provided" }, { status: 400 });
   }
 
-  const clientId = cookieStore.get("google_client_id")?.value;
-  const clientSecret = cookieStore.get("google_client_secret")?.value;
+  let clientId = cookieStore.get("google_client_id")?.value;
+  let clientSecret = cookieStore.get("google_client_secret")?.value;
+
+  // Fallback to env vars if cookies are missing (Server-Managed Mode)
+  if (!clientId || !clientSecret) {
+    clientId = process.env.GOOGLE_CLIENT_ID;
+    clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  }
 
   if (!clientId || !clientSecret) {
     return NextResponse.json(
@@ -32,7 +38,7 @@ export async function GET(request: Request) {
     if (tokens.access_token) {
       response.cookies.set("google_access_token", tokens.access_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false, // POC runs on HTTP
         path: "/",
       });
     }
@@ -40,7 +46,7 @@ export async function GET(request: Request) {
     if (tokens.refresh_token) {
       response.cookies.set("google_refresh_token", tokens.refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false, // POC runs on HTTP
         path: "/",
       });
     }
