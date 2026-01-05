@@ -29,8 +29,14 @@ async function getUserEmail(
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("google_access_token")?.value;
-  const clientId = cookieStore.get("google_client_id")?.value;
-  const clientSecret = cookieStore.get("google_client_secret")?.value;
+  let clientId = cookieStore.get("google_client_id")?.value;
+  let clientSecret = cookieStore.get("google_client_secret")?.value;
+
+  // Fallback to env vars if cookies are missing
+  if (!clientId || !clientSecret) {
+    clientId = process.env.GOOGLE_CLIENT_ID;
+    clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  }
 
   if (!token || !clientId || !clientSecret) {
     redirect("/");
